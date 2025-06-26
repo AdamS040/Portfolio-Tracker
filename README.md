@@ -18,5 +18,8 @@ This tool calculates key performance and risk metrics (like **Sharpe Ratio**, **
 
 ---
 
-## 📂 Project Structure
+1. **Clone repo**  
+   ```bash
+   git clone https://github.com/AdamS040/portfolio-tracker.git
+   cd portfolio-tracker
 
