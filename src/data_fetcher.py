@@ -1,4 +1,4 @@
-```python
+
 import yfinance as yf
 import pandas as pd
 from typing import List, Tuple
