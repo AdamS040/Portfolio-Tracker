@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import scipy as scipy
 from scipy import stats
 
 def sharpe_ratio(
