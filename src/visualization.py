@@ -18,8 +18,11 @@ def plot_cumulative_returns(
     ax.legend()
     ax.set_ylabel('Cumulative Return')
     ax.set_xlabel('Date')
+
+    ax.tick_params(axis='x', labelsize=8)  # Decrease x-axis font size
+
     plt.tight_layout()
-    
+
     if return_fig:
         return fig
     else:
