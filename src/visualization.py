@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 def plot_cumulative_returns(
     port_cum: pd.Series,
     bench_cum: pd.Series,
-    title: str = "Cumulative Returns"
+    title: str = "Cumulative Returns",
+    save_path: str = None
 ):
     fig, ax = plt.subplots()
     ax.plot(port_cum, label='Portfolio')
@@ -14,9 +16,12 @@ def plot_cumulative_returns(
     ax.set_ylabel('Cumulative Return')
     ax.set_xlabel('Date')
     plt.tight_layout()
+    if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path)
     plt.show()
+    plt.close()
 
-# Add more: pie chart allocation, drawdown plot, rolling Sharpe, etc.
 
 def plot_drawdown(cum_returns, save_path=None):
     """
@@ -37,8 +42,10 @@ def plot_drawdown(cum_returns, save_path=None):
     plt.legend()
     plt.grid(True)
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path)
     plt.show()
+    plt.close()
 
 
 def plot_rolling_volatility(returns, window=60, save_path=None):
@@ -59,5 +66,7 @@ def plot_rolling_volatility(returns, window=60, save_path=None):
     plt.legend()
     plt.grid(True)
     if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path)
     plt.show()
+    plt.close()

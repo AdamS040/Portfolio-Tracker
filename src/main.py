@@ -64,10 +64,9 @@ def main():
     cum_port = (1 + port_returns).cumprod()
     cum_bench = (1 + bench_returns).cumprod()
 
-    plot_cumulative_returns(cum_port, cum_bench)
-    plot_drawdown(cum_port)
-    plot_rolling_volatility(port_returns)
-
+    plot_cumulative_returns(cum_port, cum_bench, save_path='outputs/cumulative_returns.png')
+    plot_drawdown(cum_port, save_path='outputs/drawdown.png')
+    plot_rolling_volatility(port_returns, save_path='outputs/rolling_volatility.png')
 
 if __name__ == '__main__':
     main()
