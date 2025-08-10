@@ -4,6 +4,8 @@ from data_fetcher import fetch_price_history, fetch_benchmark
 from portfolio import load_portfolio, compute_positions
 from metrics import sharpe_ratio, max_drawdown, alpha_beta
 from visualization import plot_cumulative_returns
+import os
+import sys
 
 def main():
     parser = argparse.ArgumentParser()
@@ -11,7 +13,18 @@ def main():
     args = parser.parse_args()
 
     # Load config
-    cfg = yaml.safe_load(open('config/config.yaml'))
+config_path = 'config/config.yaml'
+if not os.path.exists(config_path):
+    sys.exit(f"❌ ERROR: Config file not found at '{config_path}'. Please create it before running.")
+try:
+    with open(config_path, 'r') as f:
+        cfg = yaml.safe_load(f)
+except yaml.YAMLError as e:
+    sys.exit(f"❌ ERROR: Failed to parse YAML config: {e}")
+
+if 'risk_free_rate' not in cfg or 'benchmark' not in cfg:
+    sys.exit("❌ ERROR: Config file must contain 'risk_free_rate' and 'benchmark'.")
+
     rf = cfg['risk_free_rate']
     bench = cfg['benchmark']
 
@@ -41,3 +54,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
