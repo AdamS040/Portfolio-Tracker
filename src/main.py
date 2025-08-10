@@ -7,7 +7,8 @@ import pandas as pd
 from data_fetcher import fetch_price_history, fetch_benchmark
 from portfolio import load_portfolio, compute_positions
 from metrics import sharpe_ratio, max_drawdown, alpha_beta
-from visualization import plot_cumulative_returns
+from visualization import plot_cumulative_returns, plot_drawdown, plot_rolling_volatility
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -60,9 +61,13 @@ def main():
     print(f"Alpha: {ab['alpha']:.2%}, Beta: {ab['beta']:.2f}")
 
     # ===== VISUALIZATION =====
-    plot_cumulative_returns((1 + port_returns).cumprod(),
-                            (1 + bench_returns).cumprod())
+    cum_port = (1 + port_returns).cumprod()
+    cum_bench = (1 + bench_returns).cumprod()
+
+    plot_cumulative_returns(cum_port, cum_bench)
+    plot_drawdown(cum_port)
+    plot_rolling_volatility(port_returns)
+
 
 if __name__ == '__main__':
     main()
-

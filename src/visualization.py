@@ -17,3 +17,47 @@ def plot_cumulative_returns(
     plt.show()
 
 # Add more: pie chart allocation, drawdown plot, rolling Sharpe, etc.
+
+def plot_drawdown(cum_returns, save_path=None):
+    """
+    Plot the drawdown curve of cumulative returns.
+
+    cum_returns: pd.Series or pd.DataFrame with cumulative returns (e.g. (1+returns).cumprod())
+    save_path: optional file path to save the plot
+    """
+    running_max = cum_returns.cummax()
+    drawdown = (cum_returns - running_max) / running_max
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(drawdown, color='red', label='Drawdown')
+    plt.fill_between(drawdown.index, drawdown, 0, color='red', alpha=0.3)
+    plt.title('Drawdown Curve')
+    plt.ylabel('Drawdown')
+    plt.xlabel('Date')
+    plt.legend()
+    plt.grid(True)
+    if save_path:
+        plt.savefig(save_path)
+    plt.show()
+
+
+def plot_rolling_volatility(returns, window=60, save_path=None):
+    """
+    Plot rolling volatility of returns.
+
+    returns: pd.Series or pd.DataFrame with periodic returns
+    window: rolling window size in days
+    save_path: optional file path to save the plot
+    """
+    rolling_vol = returns.rolling(window).std() * (252**0.5)  # Annualized volatility
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(rolling_vol, label=f'Rolling {window}-day Volatility')
+    plt.title(f'Rolling {window}-day Volatility')
+    plt.ylabel('Volatility')
+    plt.xlabel('Date')
+    plt.legend()
+    plt.grid(True)
+    if save_path:
+        plt.savefig(save_path)
+    plt.show()
