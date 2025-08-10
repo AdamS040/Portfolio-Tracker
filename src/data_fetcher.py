@@ -11,7 +11,7 @@ def fetch_price_history(
     """
     Returns adjusted close prices for tickers between start and end.
     """
-    data = yf.download(tickers, start=start, end=end, progress=False)
+    data = yf.download(tickers, start=start, end=end, progress=False, auto_adjust=False)
     return data['Adj Close']
 
 def fetch_benchmark(

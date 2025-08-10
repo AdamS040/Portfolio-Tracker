@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import scipy as scipy
 from scipy import stats
+from typing import Dict
+
 
 def sharpe_ratio(
     returns: pd.Series,
