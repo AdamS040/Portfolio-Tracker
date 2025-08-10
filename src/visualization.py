@@ -2,11 +2,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
+import matplotlib.pyplot as plt
+import pandas as pd
+
 def plot_cumulative_returns(
     port_cum: pd.Series,
     bench_cum: pd.Series,
     title: str = "Cumulative Returns",
-    save_path: str = None
+    return_fig: bool = False
 ):
     fig, ax = plt.subplots()
     ax.plot(port_cum, label='Portfolio')
@@ -16,57 +19,47 @@ def plot_cumulative_returns(
     ax.set_ylabel('Cumulative Return')
     ax.set_xlabel('Date')
     plt.tight_layout()
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path)
-    plt.show()
-    plt.close()
+    
+    if return_fig:
+        return fig
+    else:
+        plt.show()
 
 
-def plot_drawdown(cum_returns, save_path=None):
-    """
-    Plot the drawdown curve of cumulative returns.
-
-    cum_returns: pd.Series or pd.DataFrame with cumulative returns (e.g. (1+returns).cumprod())
-    save_path: optional file path to save the plot
-    """
+def plot_drawdown(cum_returns, title='Drawdown Curve', return_fig=False):
     running_max = cum_returns.cummax()
     drawdown = (cum_returns - running_max) / running_max
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(drawdown, color='red', label='Drawdown')
-    plt.fill_between(drawdown.index, drawdown, 0, color='red', alpha=0.3)
-    plt.title('Drawdown Curve')
-    plt.ylabel('Drawdown')
-    plt.xlabel('Date')
-    plt.legend()
-    plt.grid(True)
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path)
-    plt.show()
-    plt.close()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(drawdown, color='red', label='Drawdown')
+    ax.fill_between(drawdown.index, drawdown, 0, color='red', alpha=0.3)
+    ax.set_title(title)
+    ax.set_ylabel('Drawdown')
+    ax.set_xlabel('Date')
+    ax.legend()
+    ax.grid(True)
+    
+    if return_fig:
+        return fig
+    else:
+        plt.show()
 
 
-def plot_rolling_volatility(returns, window=60, save_path=None):
-    """
-    Plot rolling volatility of returns.
+def plot_rolling_volatility(returns, window=60, title=None, return_fig=False):
+    rolling_vol = returns.rolling(window).std() * (252 ** 0.5)  # Annualized volatility
 
-    returns: pd.Series or pd.DataFrame with periodic returns
-    window: rolling window size in days
-    save_path: optional file path to save the plot
-    """
-    rolling_vol = returns.rolling(window).std() * (252**0.5)  # Annualized volatility
+    if title is None:
+        title = f'Rolling {window}-day Volatility'
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(rolling_vol, label=f'Rolling {window}-day Volatility')
-    plt.title(f'Rolling {window}-day Volatility')
-    plt.ylabel('Volatility')
-    plt.xlabel('Date')
-    plt.legend()
-    plt.grid(True)
-    if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path)
-    plt.show()
-    plt.close()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(rolling_vol, label=title)
+    ax.set_title(title)
+    ax.set_ylabel('Volatility')
+    ax.set_xlabel('Date')
+    ax.legend()
+    ax.grid(True)
+
+    if return_fig:
+        return fig
+    else:
+        plt.show()
