@@ -18,7 +18,7 @@ def compute_positions(
     """
     if 'weight' in portfolio:
         weights = portfolio.set_index('ticker')['weight']
-        returns = prices.pct_change().dropna()
+        returns = prices.pct_change(fill_method=None).dropna()
         port_returns = (returns * weights).sum(axis=1)
         return port_returns
     # else handle 'shares'...
