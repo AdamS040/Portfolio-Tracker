@@ -112,7 +112,18 @@ def main():
     st.sidebar.markdown("Expected columns: `ticker` and `weight`")
     uploaded_file = st.sidebar.file_uploader("Choose CSV file", type=["csv"])
 
-    st.sidebar.markdown("[Download sample portfolio CSV](data/sample_portfolio.csv)")
+    if os.path.exists("data/sample_portfolio.csv"):
+        with open("data/sample_portfolio.csv", "rb") as f:
+            sample_csv_bytes = f.read()
+        st.sidebar.download_button(
+            label="Download sample portfolio CSV",
+            data=sample_csv_bytes,
+            file_name="sample_portfolio.csv",
+            mime="text/csv",
+            key="download_sample_csv"
+    )
+    else:
+        st.sidebar.warning("Sample CSV file not found.")
 
     if uploaded_file is not None:
         try:
