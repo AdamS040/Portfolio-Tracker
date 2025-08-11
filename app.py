@@ -154,7 +154,9 @@ def main():
             if st.button("Export Report to PDF"):
                 try:
                     output_file = "portfolio_report.pdf"
+                    st.write("Generating PDF report...")  # Debug message
                     export_pdf_report(metrics, figs, output_file)
+                    st.write(f"Report saved at {output_file}")
                     with open(output_file, "rb") as f:
                         st.download_button(
                             label="📄 Download PDF Report",
