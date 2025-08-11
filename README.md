@@ -50,8 +50,17 @@ You can run the tracker manually like this:
   ```bash
    python src/main.py --portfolio data/sample_portfolio.csv
 ```
-  
-### 4. **Project Structure**
+### 4. Running the Streamlit App
+Install Streamlit:
+```bash
+pip install streamlit
+```  
+
+Run App:
+```bash
+streamlit run app.py
+```
+### 5. **Project Structure**
   ```bash
    config/
   config.yaml           # Risk-free rate and benchmark settings
@@ -63,6 +72,7 @@ src/
   portfolio.py          # Load and process portfolio
   metrics.py            # Calculate financial metrics
   visualization.py      # Plotting functions
+  app.py                #Streamlit adaptation
 setup_and_run.bat       # Windows setup & run script
 setup_and_run.sh        # macOS/Linux setup & run script
 requirements.txt        # Python dependencies
@@ -70,3 +80,4 @@ README.md               # This file
 ```
 
 Dependencies are listed in requirements.txt and installed automatically by the setup scripts
+
