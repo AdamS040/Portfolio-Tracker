@@ -164,3 +164,6 @@ def main():
                         )
                 except Exception as e:
                     st.error(f"Error generating PDF report: {e}")
+
+if __name__ == "__main__":
+    main()
