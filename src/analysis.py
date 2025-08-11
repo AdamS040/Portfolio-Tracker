@@ -4,28 +4,13 @@ from src.data_fetcher import fetch_price_history, fetch_benchmark
 from src.portfolio import compute_positions
 from src.metrics import sharpe_ratio, max_drawdown, alpha_beta
 
-def analyze_portfolio(pf, rf, bench, start_date='2023-01-01', end_date='2025-06-25'):
-    """
-    Perform portfolio analysis:
-    - Fetch prices
-    - Compute returns
-    - Calculate Sharpe Ratio, Max Drawdown, Alpha & Beta
-    - Prepare cumulative returns for plotting
+def analyze_portfolio(pf, rf, bench, start_date=None, end_date=None):
+    # Use start_date and end_date to fetch price data within that range
+    # Default to some sensible range if None
 
-    Args:
-        pf (pd.DataFrame): Portfolio dataframe with 'ticker' and 'weight' columns
-        rf (float): Risk-free rate (annualized decimal, e.g. 0.01 for 1%)
-        bench (str): Benchmark ticker symbol (e.g. 'SPY')
-        start_date (str): Price data start date
-        end_date (str): Price data end date
-
-    Returns:
-        tuple: (sharpe_ratio, max_drawdown, alpha_beta_dict, cum_port, cum_bench, port_returns)
-    """
+    # For example, pass start and end dates into data fetchers here:
     tickers = pf['ticker'].tolist() + [bench]
-
-    # Fetch historical price data for all tickers
-    prices = fetch_price_history(tickers, start=start_date, end=end_date)
+    prices = fetch_price_history(tickers, start=start_date or '2023-01-01', end=end_date or '2025-06-25')
 
     # Compute portfolio daily returns from prices and weights
     port_returns = compute_positions(prices.drop(columns=[bench]), pf)

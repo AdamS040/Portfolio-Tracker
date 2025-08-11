@@ -84,7 +84,7 @@ def export_pdf_report(metrics, figures, output_path="portfolio_report.pdf"):
     pdf.output(output_path)
 
 def main():
-    st.title("📊 Interactive Portfolio Tracker")
+    st.title("📊 Interactive Portfolio Tracker with Dynamic Filters")
 
     # Load config.yaml safely
     config_path = 'config/config.yaml'
@@ -99,22 +99,20 @@ def main():
         st.error(f"Failed to parse YAML config: {e}")
         st.stop()
 
-    # Config inputs with defaults from config.yaml
-    risk_free_rate = st.number_input(
+    risk_free_rate = st.sidebar.number_input(
         "Risk-free rate (annual decimal, e.g. 0.01 for 1%)",
         value=cfg.get('risk_free_rate', 0.01),
         format="%.4f",
         step=0.0001
     )
 
-    benchmark = st.text_input("Benchmark ticker", value=cfg.get('benchmark', 'SPY'))
+    benchmark = st.sidebar.text_input("Benchmark ticker", value=cfg.get('benchmark', 'SPY'))
 
-    st.markdown("### Upload your portfolio CSV")
-    st.markdown("Expected columns: `ticker` and `weight`")
-    uploaded_file = st.file_uploader("Choose CSV file", type=["csv"])
+    st.sidebar.markdown("### Upload your portfolio CSV")
+    st.sidebar.markdown("Expected columns: `ticker` and `weight`")
+    uploaded_file = st.sidebar.file_uploader("Choose CSV file", type=["csv"])
 
-    # Sample portfolio download link
-    st.markdown("[Download sample portfolio CSV](data/sample_portfolio.csv)")
+    st.sidebar.markdown("[Download sample portfolio CSV](data/sample_portfolio.csv)")
 
     if uploaded_file is not None:
         try:
@@ -126,74 +124,101 @@ def main():
             st.error(f"Error reading CSV: {e}")
             st.stop()
 
-        # Validate columns
         if 'ticker' not in pf.columns or 'weight' not in pf.columns:
             st.error("Portfolio CSV must contain 'ticker' and 'weight' columns.")
             st.stop()
 
+        tickers_selected = st.multiselect(
+            "Select tickers to analyze",
+            options=pf['ticker'].tolist(),
+            default=pf['ticker'].tolist()
+        )
+
+        start_date = st.date_input("Start date", datetime(2023, 1, 1))
+        end_date = st.date_input("End date", datetime.today())
+        if start_date > end_date:
+            st.error("Start date must be before end date.")
+            st.stop()
+
+        pf_filtered = pf[pf['ticker'].isin(tickers_selected)].reset_index(drop=True)
+
         if st.button("Run Analysis"):
+            if pf_filtered.empty:
+                st.error("Please select at least one ticker to analyze.")
+                st.stop()
             with st.spinner("Analyzing portfolio..."):
                 try:
                     sr, mdd, ab, cum_port, cum_bench, port_returns = analyze_portfolio(
-                        pf, risk_free_rate, benchmark
+                        pf_filtered, risk_free_rate, benchmark,
+                        start_date.strftime('%Y-%m-%d'),
+                        end_date.strftime('%Y-%m-%d')
                     )
                 except Exception as e:
                     st.error(f"Error during analysis: {e}")
                     st.stop()
 
-            # Show metrics
+            # Store results in session state
+            st.session_state['analysis_results'] = {
+                "sr": sr,
+                "mdd": mdd,
+                "ab": ab,
+                "cum_port": cum_port,
+                "cum_bench": cum_bench,
+                "port_returns": port_returns
+            }
+
+        # Check if results are in session_state, then display
+        if 'analysis_results' in st.session_state:
+            results = st.session_state['analysis_results']
+            sr = results["sr"]
+            mdd = results["mdd"]
+            ab = results["ab"]
+            cum_port = results["cum_port"]
+            cum_bench = results["cum_bench"]
+            port_returns = results["port_returns"]
+
             st.markdown("### Key Metrics")
             st.metric("Sharpe Ratio", f"{sr:.2f}")
             st.metric("Max Drawdown", f"{mdd:.2%}")
             st.metric("Alpha", f"{ab['alpha']:.2%}")
             st.metric("Beta", f"{ab['beta']:.2f}")
 
-            metrics = {
-                "Sharpe Ratio": f"{sr:.2f}",
-                "Max Drawdown": f"{mdd:.2%}",
-                "Alpha": f"{ab['alpha']:.2%}",
-                "Beta": f"{ab['beta']:.2f}"
-            }
-
-            # Show plots & store figures
-            figs = []
-
             st.markdown("### Portfolio vs Benchmark: Cumulative Returns")
             fig1 = plot_cumulative_returns(cum_port, cum_bench, return_fig=True)
             st.pyplot(fig1)
-            figs.append(fig1)
 
             st.markdown("### Drawdown Curve")
             fig2 = plot_drawdown(cum_port, return_fig=True)
             st.pyplot(fig2)
-            figs.append(fig2)
 
             st.markdown("### Rolling Volatility")
             fig3 = plot_rolling_volatility(port_returns, return_fig=True)
             st.pyplot(fig3)
-            figs.append(fig3)
 
-            # Save results in session state
-            st.session_state['metrics'] = metrics
-            st.session_state['figs'] = figs
+            # Now show the export button **only if analysis run**
+            if st.button("Export Report to PDF"):
+                try:
+                    metrics = {
+                        "Sharpe Ratio": f"{sr:.2f}",
+                        "Max Drawdown": f"{mdd:.2%}",
+                        "Alpha": f"{ab['alpha']:.2%}",
+                        "Beta": f"{ab['beta']:.2f}"
+                    }
+                    figs = [fig1, fig2, fig3]
+                    output_file = "portfolio_report.pdf"
+                    export_pdf_report(metrics, figs, output_file)
+                    st.success(f"PDF report generated: {output_file}")
 
-    # Show export button only if analysis has run
-    if 'metrics' in st.session_state and 'figs' in st.session_state:
-        if st.button("Export Report to PDF"):
-            try:
-                output_file = "portfolio_report.pdf"
-                st.write("Generating PDF report...")  # Debug message
-                export_pdf_report(st.session_state['metrics'], st.session_state['figs'], output_file)
-                st.write(f"Report saved at {output_file}")
-                with open(output_file, "rb") as f:
-                    st.download_button(
-                        label="📄 Download PDF Report",
-                        data=f,
-                        file_name=output_file,
-                        mime="application/pdf"
-                    )
-            except Exception as e:
-                st.error(f"Error generating PDF report: {e}")
+                    with open(output_file, "rb") as f:
+                        st.download_button(
+                            label="📄 Download PDF Report",
+                            data=f,
+                            file_name=output_file,
+                            mime="application/pdf"
+                        )
+                except Exception as e:
+                    st.error(f"Error generating PDF report: {e}")
+
 
 if __name__ == "__main__":
     main()
