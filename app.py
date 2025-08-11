@@ -2,9 +2,63 @@ import streamlit as st
 import pandas as pd
 import yaml
 import os
+from datetime import datetime
+from fpdf import FPDF
 
 from src.analysis import analyze_portfolio
-from src.visualization import plot_cumulative_returns, plot_drawdown, plot_rolling_volatility
+from src.visualization import (
+    plot_cumulative_returns,
+    plot_drawdown,
+    plot_rolling_volatility
+)
+
+def export_pdf_report(metrics, figures, output_path="portfolio_report.pdf"):
+    """
+    Exports portfolio analysis to a PDF with a title page and embedded plots.
+
+    Args:
+        metrics (dict): Dictionary with performance metrics.
+        figures (list): List of matplotlib Figure objects.
+        output_path (str): Output PDF file name.
+    """
+    class PDF(FPDF):
+        def header(self):
+            pass  # No header on all pages
+
+        def footer(self):
+            self.set_y(-15)
+            self.set_font('Arial', 'I', 8)
+            self.cell(0, 10, f"Page {self.page_no()}", 0, 0, 'C')
+
+    pdf = PDF()
+
+    # --- Title Page ---
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 20)
+    pdf.cell(0, 60, "", ln=True)  # Spacer
+    pdf.cell(0, 10, "Portfolio Analysis Report", ln=True, align='C')
+    pdf.set_font("Arial", '', 14)
+    pdf.cell(0, 10, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+             ln=True, align='C')
+
+    # --- Metrics Page ---
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, "Key Metrics", ln=True)
+    pdf.set_font("Arial", '', 12)
+    for k, v in metrics.items():
+        pdf.cell(0, 10, f"{k}: {v}", ln=True)
+
+    # --- Figures ---
+    for fig in figures:
+        img_path = f"temp_fig_{datetime.now().strftime('%H%M%S%f')}.png"
+        fig.savefig(img_path, bbox_inches='tight')
+        pdf.add_page()
+        pdf.image(img_path, x=10, y=20, w=180)
+        os.remove(img_path)
+
+    pdf.output(output_path)
+
 
 def main():
     st.title("📊 Interactive Portfolio Tracker")
@@ -71,18 +125,38 @@ def main():
             st.metric("Alpha", f"{ab['alpha']:.2%}")
             st.metric("Beta", f"{ab['beta']:.2f}")
 
-            # Show plots
+            metrics = {
+                "Sharpe Ratio": f"{sr:.2f}",
+                "Max Drawdown": f"{mdd:.2%}",
+                "Alpha": f"{ab['alpha']:.2%}",
+                "Beta": f"{ab['beta']:.2f}"
+            }
+
+            # Show plots & store figures
+            figs = []
+
             st.markdown("### Portfolio vs Benchmark: Cumulative Returns")
-            fig = plot_cumulative_returns(cum_port, cum_bench, return_fig=True)
-            st.pyplot(fig)
+            fig1 = plot_cumulative_returns(cum_port, cum_bench, return_fig=True)
+            st.pyplot(fig1)
+            figs.append(fig1)
 
             st.markdown("### Drawdown Curve")
-            fig = plot_drawdown(cum_port, return_fig=True)
-            st.pyplot(fig)
+            fig2 = plot_drawdown(cum_port, return_fig=True)
+            st.pyplot(fig2)
+            figs.append(fig2)
 
             st.markdown("### Rolling Volatility")
-            fig = plot_rolling_volatility(port_returns, return_fig=True)
-            st.pyplot(fig)
+            fig3 = plot_rolling_volatility(port_returns, return_fig=True)
+            st.pyplot(fig3)
+            figs.append(fig3)
 
-if __name__ == "__main__":
-    main()
+            # Export to PDF
+            if st.button("Export Report to PDF"):
+                try:
+                    output_file = "portfolio_report.pdf"
+                    export_pdf_report(metrics, figs, output_file)
+                    with open(output_file, "rb") as f:
+                        st.download_button(
+                            label="📄 Download PDF Report",
+                            data=f,
+                            file_name=output_file
