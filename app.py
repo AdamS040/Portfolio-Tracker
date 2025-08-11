@@ -150,20 +150,27 @@ def main():
             st.pyplot(fig3)
             figs.append(fig3)
 
-            # Export to PDF
-            if st.button("Export Report to PDF"):
-                try:
-                    output_file = "portfolio_report.pdf"
-                    export_pdf_report(metrics, figs, output_file)
-                    with open(output_file, "rb") as f:
-                        st.download_button(
-                            label="📄 Download PDF Report",
-                            data=f,
-                            file_name=output_file,
-                            mime="application/pdf"
-                        )
-                except Exception as e:
-                    st.error(f"Error generating PDF report: {e}")
+            # Save results in session state
+            st.session_state['metrics'] = metrics
+            st.session_state['figs'] = figs
+
+    # Show export button only if analysis has run
+    if 'metrics' in st.session_state and 'figs' in st.session_state:
+        if st.button("Export Report to PDF"):
+            try:
+                output_file = "portfolio_report.pdf"
+                st.write("Generating PDF report...")  # Debug message
+                export_pdf_report(st.session_state['metrics'], st.session_state['figs'], output_file)
+                st.write(f"Report saved at {output_file}")
+                with open(output_file, "rb") as f:
+                    st.download_button(
+                        label="📄 Download PDF Report",
+                        data=f,
+                        file_name=output_file,
+                        mime="application/pdf"
+                    )
+            except Exception as e:
+                st.error(f"Error generating PDF report: {e}")
 
 if __name__ == "__main__":
     main()
