@@ -159,4 +159,8 @@ def main():
                         st.download_button(
                             label="📄 Download PDF Report",
                             data=f,
-                            file_name=output_file
+                            file_name=output_file,
+                            mime="application/pdf"
+                        )
+                except Exception as e:
+                    st.error(f"Error generating PDF report: {e}")
