@@ -28,37 +28,60 @@ def export_pdf_report(metrics, figures, output_path="portfolio_report.pdf"):
         def footer(self):
             self.set_y(-15)
             self.set_font('Arial', 'I', 8)
+            self.set_text_color(128)
             self.cell(0, 10, f"Page {self.page_no()}", 0, 0, 'C')
 
     pdf = PDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+
+    # Calculate effective page width
+    epw = pdf.w - 2 * pdf.l_margin
 
     # --- Title Page ---
     pdf.add_page()
-    pdf.set_font("Arial", 'B', 20)
+    pdf.set_font("Arial", 'B', 26)
+    pdf.set_text_color(0, 51, 102)  # Dark blue
     pdf.cell(0, 60, "", ln=True)  # Spacer
-    pdf.cell(0, 10, "Portfolio Analysis Report", ln=True, align='C')
+    pdf.cell(0, 15, "Portfolio Analysis Report", ln=True, align='C')
     pdf.set_font("Arial", '', 14)
+    pdf.set_text_color(0, 0, 0)
     pdf.cell(0, 10, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
              ln=True, align='C')
 
     # --- Metrics Page ---
     pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "Key Metrics", ln=True)
+    pdf.set_font("Arial", 'B', 20)
+    pdf.set_text_color(0, 51, 102)
+    pdf.cell(0, 15, "Key Metrics", ln=True)
+    pdf.ln(5)
+
+    pdf.set_font("Arial", 'B', 14)
+    col_width = epw / 2  # divide page width into two columns
+    row_height = 10
+
+    # Table header
+    pdf.set_fill_color(200, 220, 255)  # Light blue fill
+    pdf.cell(col_width, row_height, "Metric", border=1, align='C', fill=True)
+    pdf.cell(col_width, row_height, "Value", border=1, align='C', fill=True)
+    pdf.ln(row_height)
+
     pdf.set_font("Arial", '', 12)
-    for k, v in metrics.items():
-        pdf.cell(0, 10, f"{k}: {v}", ln=True)
+    pdf.set_text_color(0, 0, 0)
+    for metric, value in metrics.items():
+        pdf.cell(col_width, row_height, metric, border=1, align='L')
+        pdf.cell(col_width, row_height, value, border=1, align='C')
+        pdf.ln(row_height)
 
     # --- Figures ---
     for fig in figures:
+        # Save figure temporarily
         img_path = f"temp_fig_{datetime.now().strftime('%H%M%S%f')}.png"
         fig.savefig(img_path, bbox_inches='tight')
         pdf.add_page()
-        pdf.image(img_path, x=10, y=20, w=180)
+        pdf.image(img_path, x=10, y=20, w=pdf.w - 20)  # leave margin 10 each side
         os.remove(img_path)
 
     pdf.output(output_path)
-
 
 def main():
     st.title("📊 Interactive Portfolio Tracker")
