@@ -24,10 +24,21 @@ def max_drawdown(returns: pd.Series) -> float:
 def alpha_beta(
     port_returns: pd.Series,
     bench_returns: pd.Series,
+    risk_free_rate: float = 0.01,
     freq: int = 252
 ) -> Dict[str, float]:
-    """Linear regression of excess returns to get alpha & beta."""
-    excess_p = port_returns - port_returns.mean()
-    excess_b = bench_returns - bench_returns.mean()
+    """Calculate annualized alpha and beta via linear regression of excess returns."""
+
+    # Convert annual risk-free rate to per-period (assuming returns frequency matches freq)
+    rf_per_period = risk_free_rate / freq
+
+    # Calculate excess returns by subtracting risk-free rate per period
+    excess_p = port_returns - rf_per_period
+    excess_b = bench_returns - rf_per_period
+
     beta, alpha, r_val, p_val, std_err = stats.linregress(excess_b, excess_p)
-    return {'alpha': alpha * freq, 'beta': beta}
+
+    # Annualize alpha by multiplying intercept by freq
+    alpha_annualized = alpha * freq
+
+    return {'alpha': alpha_annualized, 'beta': beta}
