@@ -1,21 +1,23 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Optional: clone repo if not done
-REM git clone https://github.com/AdamS040/Portfolio-Tracker.git
-REM cd Portfolio-Tracker
+REM Navigate to repo folder if needed
+cd /d %~dp0
 
-echo Creating virtual environment...
-python -m venv env
+echo Creating virtual environment (if not exists)...
+if not exist env (
+    python -m venv env
+)
 
 echo Activating virtual environment...
 call env\Scripts\activate.bat
 
 echo Installing dependencies...
+pip install --upgrade pip >nul 2>&1
 pip install -r requirements.txt
 
-echo Running portfolio tracker...
-python src\main.py --portfolio data\sample_portfolio.csv
+echo Running portfolio tracker (app.py)...
+python src\app.py --portfolio data\sample_portfolio.csv
 
 echo.
 echo Done!

@@ -1,22 +1,25 @@
 #!/bin/bash
-set -e  # Exit immediately if any command fails
+set -e
 
-# Optional: Uncomment to clone repo if needed
-# git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
-# cd YOUR-REPO-NAME
+# Navigate to repo folder
+cd "$(dirname "$0")"
 
-echo "Creating Python virtual environment..."
-python -m venv env
+echo "Creating virtual environment (if not exists)..."
+if [ ! -d "env" ]; then
+    python3 -m venv env
+fi
 
 echo "Activating virtual environment..."
 source env/bin/activate
 
 echo "Installing dependencies..."
+pip install --upgrade pip >/dev/null 2>&1
 pip install -r requirements.txt
 
-echo "Running portfolio tracker..."
-python src/main.py --portfolio data/sample_portfolio.csv
+echo "Running portfolio tracker (app.py)..."
+python src/app.py --portfolio data/sample_portfolio.csv
 
+echo
 echo "Done!"
 echo "To change stocks or risk-free rate, edit:"
 echo "  - data/sample_portfolio.csv"
