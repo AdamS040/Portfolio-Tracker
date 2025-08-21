@@ -17,7 +17,7 @@ pip install --upgrade pip >/dev/null 2>&1
 pip install -r requirements.txt
 
 echo "Running portfolio tracker (app.py)..."
-python src/app.py --portfolio data/sample_portfolio.csv
+python -m streamlit run src/app.py
 
 echo
 echo "Done!"

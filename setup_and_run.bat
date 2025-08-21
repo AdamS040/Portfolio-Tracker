@@ -13,11 +13,10 @@ echo Activating virtual environment...
 call env\Scripts\activate.bat
 
 echo Installing dependencies...
-pip install --upgrade pip >nul 2>&1
 pip install -r requirements.txt
 
 echo Running portfolio tracker (app.py)...
-python src\app.py --portfolio data\sample_portfolio.csv
+python -m streamlit run src/app.py
 
 echo.
 echo Done!

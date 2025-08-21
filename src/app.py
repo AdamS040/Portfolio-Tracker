@@ -5,8 +5,8 @@ import pandas as pd
 import streamlit as st
 import yaml
 
-from analysis import analyze_portfolio
-from visualization import (
+from src.analysis import analyze_portfolio
+from src.visualization import (
     plot_cumulative_returns,
     plot_drawdown,
     plot_rolling_volatility,
@@ -155,10 +155,14 @@ def main():
         st.error(f"Error reading CSV: {e}")
         st.stop()
 
-    if not {"ticker", "weight"}.issubset(pf.columns):
-        st.error("Portfolio CSV must contain 'ticker' and 'weight' columns.")
-        st.stop()
+    if pf is None or pf.empty:
+        st.error("Portfolio CSV not loaded or is empty. Please upload a valid file.")
+        return
 
+    if not {"ticker", "weight"}.issubset(pf.columns):
+        st.error("CSV must contain at least 'ticker' and 'weight' columns.")
+        return
+    
     tickers_selected = st.multiselect(
         "Select tickers to analyze",
         options=pf["ticker"].tolist(),
