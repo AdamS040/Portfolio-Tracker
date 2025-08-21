@@ -84,7 +84,7 @@ def export_pdf_report(metrics, figures, output_path="portfolio_report.pdf"):
     pdf.output(output_path)
 
 def main():
-    st.title("📊 Interactive Portfolio Tracker with Dynamic Filters")
+    st.title("📊 Interactive Portfolio Tracker")
 
     # Load config.yaml safely
     config_path = 'config/config.yaml'
