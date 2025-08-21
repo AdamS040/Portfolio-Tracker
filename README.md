@@ -52,7 +52,7 @@ You can run the tracker manually like this:
 ```
 ### 4. **Project Structure**
   ```bash
-   config/
+config/
   config.yaml           # Risk-free rate and benchmark settings
 data/
   sample_portfolio.csv  # Portfolio stocks and weights
