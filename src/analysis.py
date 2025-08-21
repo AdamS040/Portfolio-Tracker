@@ -1,30 +1,56 @@
 # src/analysis.py
+from typing import Tuple, Dict
 
-from src.data_fetcher import fetch_price_history, fetch_benchmark
+import pandas as pd
+
+from src.data_fetcher import fetch_price_history
 from src.portfolio import compute_positions
 from src.metrics import sharpe_ratio, max_drawdown, alpha_beta
 
-def analyze_portfolio(pf, rf, bench, start_date=None, end_date=None):
-    # Use start_date and end_date to fetch price data within that range
-    # Default to some sensible range if None
 
-    # For example, pass start and end dates into data fetchers here:
-    tickers = pf['ticker'].tolist() + [bench]
-    prices = fetch_price_history(tickers, start=start_date or '2023-01-01', end=end_date or '2025-06-25')
+def analyze_portfolio(
+    pf: pd.DataFrame,
+    risk_free_rate: float,
+    benchmark: str,
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> Tuple[float, float, Dict[str, float], pd.Series, pd.Series, pd.Series]:
+    """
+    End-to-end portfolio analysis. Downloads prices once (portfolio + benchmark),
+    computes returns, then metrics and cumulative series.
 
-    # Compute portfolio daily returns from prices and weights
-    port_returns = compute_positions(prices.drop(columns=[bench]), pf)
+    Returns:
+        sr (float): Sharpe ratio
+        mdd (float): Max drawdown (negative number)
+        ab (dict): {'alpha': float, 'beta': float}
+        cum_port (pd.Series): Portfolio cumulative returns
+        cum_bench (pd.Series): Benchmark cumulative returns
+        port_returns (pd.Series): Daily portfolio returns
+    """
+    if start_date is None:
+        start_date = "2023-01-01"
 
-    # Get benchmark daily returns
-    bench_prices = fetch_benchmark(bench, start=start_date, end=end_date)
+    tickers = pf["ticker"].tolist()
+    all_tickers = list(dict.fromkeys(tickers + [benchmark]))  # preserve order, unique
+
+    prices = fetch_price_history(all_tickers, start=start_date, end=end_date)
+
+    # Split portfolio vs. benchmark
+    bench_prices = prices[benchmark]
+    pf_prices = prices.drop(columns=[benchmark], errors="ignore")
+
+    # Portfolio daily returns from component prices & weights
+    port_returns = compute_positions(pf_prices, pf)
+
+    # Benchmark daily returns
     bench_returns = bench_prices.pct_change().dropna()
 
-    # Calculate performance metrics
-    sr = sharpe_ratio(port_returns, rf)
+    # Metrics
+    sr = sharpe_ratio(port_returns, risk_free_rate)
     mdd = max_drawdown(port_returns)
-    ab = alpha_beta(port_returns, bench_returns)
+    ab = alpha_beta(port_returns, bench_returns, risk_free_rate=risk_free_rate)
 
-    # Calculate cumulative returns for plotting
+    # Cumulative for plotting
     cum_port = (1 + port_returns).cumprod()
     cum_bench = (1 + bench_returns).cumprod()
 
