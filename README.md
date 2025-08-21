@@ -35,7 +35,7 @@ cd portfolio-tracker
 ```
 
 ### 2. **Setup and Run**  
-On **Windows**, double-click setup_and_run.bat  
+On **Windows**, double-click **setup_and_run.bat**
 On **macOS/Linux**, run:
    ```bash
    chmod +x setup_and_run.sh
