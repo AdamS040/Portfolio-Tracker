@@ -5,8 +5,8 @@ import pandas as pd
 import streamlit as st
 import yaml
 
-from src.analysis import analyze_portfolio
-from src.visualization import (
+from analysis import analyze_portfolio
+from visualization import (
     plot_cumulative_returns,
     plot_drawdown,
     plot_rolling_volatility,
