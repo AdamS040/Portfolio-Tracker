@@ -1,38 +1,38 @@
-# 📊 Portfolio Tracker
+# 📊 Portfolio Tracker  
 
-A Python-based dashboard for tracking **real** or **simulated** investment portfolios.
+A Python + Streamlit dashboard for tracking **real** or **simulated** investment portfolios.  
 
-This tool calculates key performance and risk metrics (like **Sharpe Ratio**, **Drawdown**, **Alpha/Beta**) and visualizes the results using data pulled from public APIs like **Yahoo Finance**.
-
----
-
-## 🚀 Features
-
-- 🔄 **Real-time market data** using `yfinance`  
-- 📈 **Performance tracking** (daily returns, cumulative growth)  
-- 📉 **Risk analysis** (Sharpe Ratio, Max Drawdown)  
-- 📊 **Factor metrics** (Alpha, Beta vs. benchmark)  
-- 🖼️ **Visual dashboards** with Matplotlib and Plotly  
-- ✅ Supports both **real** and **mock** portfolios  
-- 📁 Exportable structure for GitHub and interviews  
+This tool calculates key performance and risk metrics (e.g. **Sharpe Ratio**, **Drawdown**, **Alpha/Beta**) and visualizes results with an interactive web app. Market data is pulled from public APIs like **Yahoo Finance**.  
 
 ---
 
-## 🛠️ Prerequisites
+## 🚀 Features  
 
-- Python 3.8 or higher installed  
-- Git installed (optional, for cloning the repo)  
+- 🔄 **Real-time market data** via `yfinance`  
+- 📈 **Performance tracking**: daily returns, cumulative growth, rolling performance  
+- 📉 **Risk analysis**: Sharpe Ratio, Max Drawdown, volatility  
+- 📊 **Factor metrics**: Alpha, Beta vs. a benchmark index  
+- 🖼️ **Interactive dashboards** powered by Streamlit & Plotly  
+- ✅ Works with both **real portfolios** and **mock test portfolios**  
+- ⚙️ Configurable **risk-free rate & benchmark** in `config/config.yaml`  
+- 📁 Ready-to-use structure for projects, GitHub, and interviews  
 
 ---
 
-## 🏁 Getting Started
+## 🛠️ Prerequisites  
 
+- Python **3.8+**  
+- Git (optional, for cloning the repo)  
 
-### 1. **Clone repo**  
-   ```bash
-   git clone https://github.com/AdamS040/portfolio-tracker.git
-   cd portfolio-tracker
-   ```
+---
+
+## 🏁 Getting Started  
+
+### 1. **Clone the repo**  
+```bash
+git clone https://github.com/AdamS040/portfolio-tracker.git
+cd portfolio-tracker
+```
 
 ### 2. **Setup and Run**  
 On **Windows**, double-click setup_and_run.bat  
@@ -41,7 +41,7 @@ On **macOS/Linux**, run:
    chmod +x setup_and_run.sh
    ./setup_and_run.sh
    ```
-   This will create a virtual environment, install required packages, and run the tracker.  
+   This will create a virtual environment, install required packages, and launch the dashboard.  
   
 ### 3. **How to Use**  
 The portfolio file is at data/sample_portfolio.csv. Edit this file to change the stocks or weights.
@@ -50,33 +50,23 @@ You can run the tracker manually like this:
   ```bash
    python src/main.py --portfolio data/sample_portfolio.csv
 ```
-### 4. Running the Streamlit App
-Install Streamlit:
-```bash
-pip install streamlit
-```  
-
-Run App:
-```bash
-streamlit run app.py
-```
-### 5. **Project Structure**
+### 4. **Project Structure**
   ```bash
    config/
   config.yaml           # Risk-free rate and benchmark settings
 data/
   sample_portfolio.csv  # Portfolio stocks and weights
 src/
-  main.py               # Main program
+  app.py                # Streamlit dashboard entry point
+  main.py               # CLI-based version (optional)
   data_fetcher.py       # Fetch price data
-  portfolio.py          # Load and process portfolio
+  portfolio.py          # Load & process portfolio
   metrics.py            # Calculate financial metrics
-  visualization.py      # Plotting functions
-  app.py                #Streamlit adaptation
+  visualization.py      # Plotting & chart functions
 setup_and_run.bat       # Windows setup & run script
 setup_and_run.sh        # macOS/Linux setup & run script
 requirements.txt        # Python dependencies
-README.md               # This file
+README.md               # Project readme
 ```
 
 Dependencies are listed in requirements.txt and installed automatically by the setup scripts
